@@ -1,6 +1,8 @@
-# bc-nuxt-vue-starter
+# Overview
 
-> BC + Nuxt + Storefront UI Starter
+> A BigCommerce + Nuxt + Vue Storefront UI Starter app
+
+This starter app is **not production ready**. Rather, it is intended to be used as sample, starter code when building a headless ecommerce storefront. 
 
 ## Build Setup
 
