@@ -1,9 +1,5 @@
 <template>
   <div id="category">
-    <SfBreadcrumbs
-      class="breadcrumbs desktop-only"
-      :breadcrumbs="breadcrumbs"
-    />
     <div class="navbar section">
       <div class="navbar__aside desktop-only">
         <h1 class="navbar__title">
@@ -243,7 +239,6 @@ import {
   SfPagination,
   SfAccordion,
   SfSelect,
-  SfBreadcrumbs,
   SfColor
 } from '@storefront-ui/vue'
 export default {
@@ -258,7 +253,6 @@ export default {
     SfMenuItem,
     SfAccordion,
     SfSelect,
-    SfBreadcrumbs,
     SfColor
   },
   data () {

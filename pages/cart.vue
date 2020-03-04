@@ -1,9 +1,9 @@
 <template>
   <div id="cart">
     <transition name="fade" mode="out-in">
-      <div v-if="totalItems" key="my-cart" class="my-cart">
+      <div v-if="cartCount > 0" key="my-cart" class="my-cart">
         <h3 class="my-cart__total-items">
-          Total items: {{ totalItems }}
+          Total items: {{ cartCount }}
         </h3>
         <div class="collected-product-list">
           <transition-group name="fade" tag="div">
@@ -76,6 +76,8 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
+import axios from 'axios'
 import '@storefront-ui/vue/styles.scss'
 import {
   SfButton,
@@ -99,63 +101,87 @@ export default {
       return `$${price}`
     }
   },
-  data () {
-    return {
-      isCartSidebarOpen: true,
-      products: [
-        {
-          title: 'Cream Beach Bag',
-          id: 'CBB1',
-          image: 'assets/storybook/Home/productA.jpg',
-          price: { regular: '50.00' },
-          configuration: [
-            { name: 'Size', value: 'XS' },
-            { name: 'Color', value: 'White' }
-          ],
-          qty: '1'
-        },
-        {
-          title: 'Cream Beach Bag',
-          id: 'CBB2',
-          image: 'assets/storybook/Home/productB.jpg',
-          price: { regular: '50.00', special: '20.05' },
-          configuration: [
-            { name: 'Size', value: 'XS' },
-            { name: 'Color', value: 'White' }
-          ],
-          qty: '2'
-        },
-        {
-          title: 'Cream Beach Bag',
-          id: 'CBB3',
-          image: 'assets/storybook/Home/productC.jpg',
-          price: { regular: '50.00', special: '20.50' },
-          configuration: [
-            { name: 'Size', value: 'XS' },
-            { name: 'Color', value: 'White' }
-          ],
-          qty: '1'
-        }
-      ]
-    }
+  async asyncData ({ params }) {
+    const result = await axios({
+      method: 'POST',
+      url: 'https://kari-morars-store.mybigcommerce.com/graphql',
+      headers: {
+        Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIxMzM0NDM2NjEsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCJdLCJjaWQiOjEsImlhdCI6MTU4MjYxNTM2Mywic3ViIjoidGl5N3Fncm54NWIxbzAzcTRzcmJ2MXR6aXltNTlrZiIsInNpZCI6MTAwMDk5MDM1OSwiaXNzIjoiQkMifQ.GoN-AmBQXWGS_xA6GUaKI_OcxPH8mPIQLhbElBaH4gTBv4o1jb_xTKl3D1dwZZsSO8QKspPjlSE-ousLRnX2tA'
+      },
+      data: {
+        query: `
+          query LookUpUrl {
+            site {
+              route(path: "/smith-journal-13/") {
+                node {
+                  __typename
+                  ... on Product {
+                    id 
+                    entityId
+                    name
+                    description
+                    defaultImage {
+                      url640wide: url(width: 640)
+                    }
+                    images {
+                      edges {
+                        node {
+                          mobile: url(width: 400, height: 400)
+                          desktop: url(width: 600, height: 600)
+                          big: url(width: 1200, height: 1200)
+                        }
+                      }
+                    }
+                    brand {
+                      name
+                    }
+                    path
+                    prices {
+                      price {
+                        value
+                        currencyCode
+                      }
+                      salePrice {
+                        value
+                        currencyCode
+                      }
+                    }
+                    reviewSummary {
+                      numberOfReviews
+                      summationOfRatings
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `
+      }
+    })
+    const productData = result.data.data.site.route.node
+    // debugger
+    productData.imageList = productData.images.edges.map((t) => {
+      return {
+        mobile: { url: t.node.mobile },
+        desktop: { url: t.node.desktop },
+        big: { url: t.node.big }
+      }
+    })
+    return { product: productData }
   },
   computed: {
-    totalItems () {
-      return this.products.reduce(
-        (totalItems, product) => totalItems + parseInt(product.qty, 10),
-        0
-      )
-    },
+    ...mapGetters(['cartCount']),
     totalPrice () {
-      return this.products
-        .reduce((totalPrice, product) => {
-          const price = product.price.special
-            ? product.price.special
-            : product.price.regular
-          const summary = parseFloat(price).toFixed(2) * product.qty
-          return totalPrice + summary
-        }, 0)
-        .toFixed(2)
+      return 20 * 10.00
+      // return this.products
+      //   .reduce((totalPrice, product) => {
+      //     const price = product.price.special
+      //       ? product.price.special
+      //       : product.price.regular
+      //     const summary = parseFloat(price).toFixed(2) * product.qty
+      //     return totalPrice + summary
+      //   }, 0)
+      //   .toFixed(2)
     }
   },
   methods: {

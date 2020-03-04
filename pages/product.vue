@@ -1,9 +1,5 @@
 <template>
   <div id="product">
-    <SfBreadcrumbs
-      class="breadcrumbs desktop-only"
-      :breadcrumbs="breadcrumbs"
-    />
     <div class="product">
       <div class="product__gallery">
         <SfGallery
@@ -95,7 +91,7 @@
               :stock="stock"
               :can-add-to-cart="stock > 0"
               class="product-details__add-to-cart"
-              @click="addToCart"
+              @click="addToCart(product.entityId)"
             />
             <div class="product-details__action">
               <button class="sf-action">
@@ -202,8 +198,7 @@ import {
   SfBanner,
   SfAlert,
   SfSticky,
-  SfReview,
-  SfBreadcrumbs
+  SfReview
 } from '@storefront-ui/vue'
 export default {
   name: 'Product',
@@ -221,8 +216,7 @@ export default {
     SfImage,
     SfBanner,
     SfSticky,
-    SfReview,
-    SfBreadcrumbs
+    SfReview
   },
   async asyncData ({ params }) {
     const result = await axios({
@@ -420,73 +414,9 @@ export default {
     }
     return productData
   },
-  // async mounted () {
-  //   try {
-  //     const result = await axios({
-  //       method: 'POST',
-  //       url: 'https://kari-morars-store.mybigcommerce.com/graphql',
-  //       headers: {
-  //         Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIxMzM0NDM2NjEsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCJdLCJjaWQiOjEsImlhdCI6MTU4MjYxNTM2Mywic3ViIjoidGl5N3Fncm54NWIxbzAzcTRzcmJ2MXR6aXltNTlrZiIsInNpZCI6MTAwMDk5MDM1OSwiaXNzIjoiQkMifQ.GoN-AmBQXWGS_xA6GUaKI_OcxPH8mPIQLhbElBaH4gTBv4o1jb_xTKl3D1dwZZsSO8QKspPjlSE-ousLRnX2tA'
-  //       },
-  //       data: {
-  //         query: `
-  //           query LookUpUrl {
-  //             site {
-  //               route(path: "/smith-journal-13/") {
-  //                 node {
-  //                   __typename
-  //                   ... on Product {
-  //                     id
-  //                     entityId
-  //                     name
-  //                     description
-  //                     defaultImage {
-  //                       url640wide: url(width: 640)
-  //                     }
-  //                     images {
-  //                       edges {
-  //                         node {
-  //                           url(width: 500, height: 500)
-  //                         }
-  //                       }
-  //                     }
-  //                     brand {
-  //                       name
-  //                     }
-  //                     path
-  //                     prices {
-  //                       price {
-  //                         value
-  //                         currencyCode
-  //                       }
-  //                       salePrice {
-  //                         value
-  //                         currencyCode
-  //                       }
-  //                     }
-  //                     reviewSummary {
-  //                       numberOfReviews
-  //                       summationOfRatings
-  //                     }
-  //                   }
-  //                 }
-  //               }
-  //             }
-  //           }
-  //         `
-  //       }
-  //     })
-  //     console.log(result)
-  //     if (!this.product) {
-  //       this.product = result.data.data.site.route.node
-  //     }
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // },
   methods: {
-    addToCart (event) {
-      window.location = '/cart'
+    addToCart (productId) {
+      this.$store.dispatch('addToCart', productId)
     },
     toggleWishlist (index) {
       this.products[index].isOnWishlist = !this.products[index].isOnWishlist
